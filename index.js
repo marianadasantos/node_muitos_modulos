@@ -24,6 +24,7 @@ app.use(express.json())
 const DB_USER = process.env.DB_USER
 const DB_PASS = encodeURIComponent(process.env.DB_PASS)
 
+//modelo faz relacionamento com o banco!! adc, retira, checa registros etc
 const Produto = require('./model/Products')
 const Usuario = require('./model/User')
 const Pedido = require('./model/Order')
@@ -73,8 +74,21 @@ app.post('/produto/incluir', async (req,res) =>{
 
 })
 
+app.get('/produto/listar', async (req,res)=>{
+    let produtos = []
+    produtos = await Produto.find()
+    res.json(produtos)
+    return
+})
 
 
+//exemplo excluindo roupa "m" usando chave e valor. ele é case sensitive, viu
+app.get('/produto/excluir', async (req,res)=>{
+    let produtos = []
+    produtos = await Produto.findOneAndDelete({tamanhoItem:"m"})
+    res.json(produtos)
+    return
+})
 //outra rota pode tb receberesse obj
 //ou vc desenvolve app front q vai acessar essa rota e receber esse obj com uma série d propriedades q faz seu
 //pode ter uam rota post q recebe o obj, a get fornece
