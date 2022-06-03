@@ -24,7 +24,12 @@ app.use(express.json())
 const DB_USER = process.env.DB_USER
 const DB_PASS = encodeURIComponent(process.env.DB_PASS)
 
-mongoose
+const Produto = require('./model/Products')
+const Usuario = require('./model/User')
+const Pedido = require('./model/Order')
+
+
+mongoose//bota o nome do bando antes da ? no link do mongo ....net/loja?retry
     .connect(`mongodb+srv://${DB_USER}:${DB_PASS}@cluster0.co3sx.mongodb.net/?retryWrites=true&w=majority`)
     
     //faz o console log e mostra sucesso
@@ -36,28 +41,38 @@ mongoose
     .catch((err)=>console.log(err))
 
 //configurando models (schema)
-const produtoSchema = new mongoose.Schema({
-    //por ser um schema, tenhi q falar o tipo de info de img
-    img: String,
-    nomeItem: String,
-    tamanhoItem: String,
-    precoItem: Number,
-    estoque: Number,
-    quantidade: Number,
+
+//função async vai esperar o resultado, a gente define onde ela espera o resultado do processamento
+
+
+app.post('/produto/incluir', async (req,res) =>{
+    //incluindo um registro/doc
+    //trycatch
+    //simplifica e faz td de uma vez ao invés de fazer cada um
+    const {img, nomeItem, tamanhoItem, precoItem, estoque, quantidade} = req.body
+  
+    try {
+        const novoProduto = {
+            img: img,
+            nomeItem: nomeItem,
+            tamanhoItem: tamanhoItem,
+            precoItem: precoItem,
+            estoque: estoque,
+            quantidade: quantidade
+        }
+    
+        await Produto.create(novoProduto)
+        //create faz o mesmo que save
+        res.status(201).json(novoProduto)
+
+    } catch (error) {
+        res.status(500).json({msg: 'Falha na inclusão:'+err})
+        return
+    }
+
+
 })
 
-//nome da collection e o modelo p produtos
-const Produto = mongoose.model('produtos', produtoSchema)
-
-novoProduto = new Produto({
-    img: '.img/product.png',
-    nomeItem: 'camiseta',
-    tamanhoItem: 'M',
-    precoItem: 39.90,
-    estoque: 5,
-    quantidade: 0,
-}).save()
-//.save() pra slvar e aparecer no mongoose
 
 
 //outra rota pode tb receberesse obj
